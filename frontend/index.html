@@ -98,6 +98,7 @@
   <p class="muted">
     Connect to a session, send messages, and watch AI responses stream in real time.
   </p>
+
   <div class="card">
     <div class="row">
       <input id="session" placeholder="session_id" value="demo-session"/>
@@ -135,7 +136,10 @@ function setStatus(text, connected=false) {
 document.getElementById("connect").onclick = () => {
   const session = document.getElementById("session").value.trim();
   const user = document.getElementById("user").value.trim();
-  const url = `ws://${location.host}/ws/session/${encodeURIComponent(session)}?user_id=${encodeURIComponent(user)}`;
+
+  // 🔑 IMPORTANT: auto-switch ws / wss
+  const scheme = (location.protocol === "https:") ? "wss" : "ws";
+  const url = `${scheme}://${location.host}/ws/session/${encodeURIComponent(session)}?user_id=${encodeURIComponent(user)}`;
 
   ws = new WebSocket(url);
 

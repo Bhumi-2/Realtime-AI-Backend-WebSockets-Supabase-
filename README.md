@@ -99,5 +99,36 @@ README.md
 
 ---
 
+## Screenshots (Working Proof)
+
+### 1. WebSocket Session Connected
+Demonstrates a live WebSocket session established with a unique `session_id` and `user_id`.
+
+![WebSocket Connected](screenshots/demo-connected.png)
+
+---
+
+### 2. Token Streaming (Mid-Response)
+Shows the assistant response arriving **incrementally**, proving real-time token streaming over WebSocket.
+
+![Token Streaming 1](screenshots/token-streaming-1.png)
+
+---
+
+### 3. Token Streaming (Continued)
+Additional proof of streaming behavior across longer responses.
+
+![Token Streaming 2](screenshots/token-streaming-2.png)
+
+---
+
+### 4. Tool / Function Calling
+Demonstrates complex LLM interaction where the assistant triggers an internal tool
+(e.g., account balance or order status retrieval) before responding.
+
+![Tool Calling](screenshots/tool-calling.png)
+
+---
+
 ## Security
 Environment variables must be set in deployment platform. `.env` is not committed.

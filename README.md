@@ -111,14 +111,14 @@ Demonstrates a live WebSocket session established with a unique `session_id` and
 ### 2. Token Streaming (Mid-Response)
 Shows the assistant response arriving **incrementally**, proving real-time token streaming over WebSocket.
 
-![Token Streaming 1](screenshots/token-streaming-1.png)
+![Token Streaming 1](screenshots/token-streaming-2.png)
 
 ---
 
 ### 3. Token Streaming (Continued)
 Additional proof of streaming behavior across longer responses.
 
-![Token Streaming 2](screenshots/token-streaming-2.png)
+![Token Streaming 2](screenshots/token-streaming-1.png)
 
 ---
 

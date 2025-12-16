@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Realtime AI Backend Demo</title>
+
+  <style>
+    body {
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: #0f172a;
+      color: #e5e7eb;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px;
+    }
+
+    h2 {
+      margin-bottom: 6px;
+    }
+
+    .muted {
+      color: #94a3b8;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    input, button {
+      padding: 10px 12px;
+      font-size: 14px;
+      border-radius: 8px;
+      border: 1px solid #1e293b;
+      background: #020617;
+      color: #e5e7eb;
+    }
+
+    input {
+      flex: 1;
+    }
+
+    button {
+      cursor: pointer;
+      background: #2563eb;
+      border: none;
+    }
+
+    button.secondary {
+      background: #334155;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .status {
+      font-size: 13px;
+      margin-bottom: 8px;
+      color: #f87171;
+    }
+
+    .status.connected {
+      color: #22c55e;
+    }
+
+    #log {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 16px;
+      min-height: 280px;
+      white-space: pre-wrap;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 13px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>Realtime AI Backend Demo (WebSocket)</h2>
+  <p class="muted">
+    Connect to a session, send messages, and watch AI responses stream in real time.
+  </p>
+  <div class="card">
+    <div class="row">
+      <input id="session" placeholder="session_id" value="demo-session"/>
+      <input id="user" placeholder="user_id (optional)" value="user-1"/>
+      <button id="connect">Connect</button>
+      <button id="disconnect" class="secondary" disabled>Disconnect</button>
+    </div>
+
+    <div class="row">
+      <input id="msg" placeholder="Type your message..." />
+      <button id="send" disabled>Send</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="status" class="status">Disconnected</div>
+    <div id="log"></div>
+  </div>
+
+<script>
+let ws = null;
+
+function log(line) {
+  const el = document.getElementById("log");
+  el.textContent += line;
+  el.scrollTop = el.scrollHeight;
+}
+
+function setStatus(text, connected=false) {
+  const s = document.getElementById("status");
+  s.textContent = text;
+  s.className = connected ? "status connected" : "status";
+}
+
+document.getElementById("connect").onclick = () => {
+  const session = document.getElementById("session").value.trim();
+  const user = document.getElementById("user").value.trim();
+  const url = `ws://${location.host}/ws/session/${encodeURIComponent(session)}?user_id=${encodeURIComponent(user)}`;
+
+  ws = new WebSocket(url);
+
+  ws.onopen = () => {
+    setStatus("Connected", true);
+    log("\n[system] connected\n");
+    document.getElementById("send").disabled = false;
+    document.getElementById("disconnect").disabled = false;
+    document.getElementById("connect").disabled = true;
+  };
+
+  ws.onmessage = (evt) => {
+    const msg = JSON.parse(evt.data);
+    if (msg.type === "start") {
+      log("\n[assistant] ");
+    } else if (msg.type === "token") {
+      log(msg.token);
+    } else if (msg.type === "done") {
+      log("\n");
+    }
+  };
+
+  ws.onclose = () => {
+    setStatus("Disconnected", false);
+    log("\n[system] disconnected\n");
+    document.getElementById("send").disabled = true;
+    document.getElementById("disconnect").disabled = true;
+    document.getElementById("connect").disabled = false;
+  };
+};
+
+document.getElementById("disconnect").onclick = () => {
+  if (ws) ws.close();
+};
+
+document.getElementById("send").onclick = () => {
+  const text = document.getElementById("msg").value.trim();
+  if (!text || !ws) return;
+  log(`\n[user] ${text}\n`);
+  ws.send(text);
+  document.getElementById("msg").value = "";
+};
+
+document.getElementById("msg").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") document.getElementById("send").click();
+});
+</script>
+
+</body>
+</html>
